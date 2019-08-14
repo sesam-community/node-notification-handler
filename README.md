@@ -59,7 +59,10 @@ Below, is one example of creating one such automatic rule for pipe "test-notific
         2. "type", "name", "description", "extra_rule_info" and "recipients" tags are also mandatory ones.
         3. As you can see "rules" is list,so you can can create multiple rules through configuration.
         4. "recipients" are comma separated values of "users" and "roles" defined or exist on that node.
-        5. "type and ""extra_rule_info" tags configuration should follow the same rule\format that we follow
+        5. "type" and ""extra_rule_info" tags configuration should follow the same rule\format that we follow
             during manual-creation of the notification rule.if not, you will see error message in logs.
         6. Please be informed that any manually created rule will be deleted and only those rule will be there which
-            will be part of that pipe-config.
+           will be part of that pipe-config.  
+        7. Important : If required tag for notification rule (like ""metadata" and Sub tags like "notifications" and
+           and "rules") are missing in pipe-config then that pipe will not part of automatic-process and Hence
+           any existing rule created manually for that will not delete.   
