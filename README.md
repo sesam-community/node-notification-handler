@@ -57,12 +57,20 @@ Below, is one example of creating one such automatic rule for pipe "test-notific
     Few things to follow :
         1. Sub tags like "notifications" and "rules" are mandatory. All tags and values are case-sensitive.
         2. "type", "name", "description", "extra_rule_info" and "recipients" tags are also mandatory ones.
-        3. As you can see "rules" is list,so you can can create multiple rules through configuration.
-        4. "recipients" are comma separated values of "users" and "roles" defined or exist on that node.
-        5. "type" and ""extra_rule_info" tags configuration should follow the same rule\format that we follow
+        3. Value for "type" tag in pipe-config,  must be from below list.
+            A. "pump_started_overdue"     (Corresponds to "pump started overdue" of GUI)
+            B. "pump_completed_value_too_high_over_time" (Corresponds to "Value too high over time" of GUI)
+            C. "pump_completed_value_too_low_over_time" (Corresponds to "Value too log over time" of GUI)
+            D. "pump_completed_value_too_high" (Corresponds to "Corresponds to "Value too high" of GUI)
+            E. "pump_completed_value_too_low" (Corresponds to "Value too log" of GUI)
+            F. "pattern_match" (Corresponds to "Pattern match" of GUI)                  
+        4. As you can see "rules" is list,so you can can create multiple rules through configuration.
+        5. "recipients" are comma separated values of "users" and "roles" defined or exist on that node.
+        6. "type" and ""extra_rule_info" tags configuration should follow the same rule\format that we follow
             during manual-creation of the notification rule.if not, you will see error message in logs.
-        6. Please be informed that any manually created rule will be deleted and only those rule will be there which
+        7. Please be informed that any manually created rule will be deleted and only those rule will be there which
            will be part of that pipe-config.  
-        7. Important : If required tag for notification rule (like ""metadata" and Sub tags like "notifications" and
+        8. Important : If required tag for notification rule (like ""metadata" and Sub tags like "notifications" and
            and "rules") are missing in pipe-config then that pipe will not part of automatic-process and Hence
            any existing rule created manually for that will not delete.   
+        
