@@ -16,11 +16,17 @@ sesam_node_url = os.environ.get('sesam_node_url')  # Sesam node url
 jwt = os.environ.get('jwt')
 
 # set logging
-log_level = logging.getLevelName(os.environ.get('LOG_LEVEL', 'DEBUG'))  # default log level = INFO
-logging.basicConfig(level=log_level)  # dump log to stdout
+logger = logging.getLogger('NotificationHandler')
+logger.setLevel({"INFO": logging.INFO,
+                 "DEBUG": logging.DEBUG,
+                 "WARNING": logging.WARNING,
+                 "ERROR": logging.ERROR}.get(os.getenv("LOG_LEVEL", "INFO")))  # Default log level: INFO
+stdout_handler = logging.StreamHandler()
+stdout_handler.setFormatter(logging.Formatter('%(name)s - %(levelname)s - %(message)s'))
+logger.addHandler(stdout_handler)
 
-logging.debug(datetime.datetime.now())
-logging.info("sesam instance name: %s" % sesam_node_url)
+
+logger.info("sesam instance name: %s" % sesam_node_url)
 
 node_conn = sesamclient.Connection(
     sesamapi_base_url=sesam_node_url,
@@ -29,7 +35,7 @@ node_conn = sesamclient.Connection(
 portal_conn = PortalConnection(jwt)
 
 subscription_id = node_conn.get_license().get("_id")
-logging.debug(f"Node subscription_id: '{subscription_id}'")
+logger.debug(f"Node subscription_id: '{subscription_id}'")
 
 
 def get_sesam_node_pipe_notification_list():
@@ -43,7 +49,7 @@ def get_sesam_node_pipe_notification_list():
                 pipe_rules = each_pipe.config['original']['metadata']['notifications']
                 process_pipe_rules(pipe_id, pipe_rules)
     except requests.ConnectionError:
-        logging.error(f'Issue while working with subscription {subscription_id}')
+        logger.error(f'Issue while working with subscription {subscription_id}')
 
 
 def validate_rule_tags(rule):
@@ -71,7 +77,7 @@ def process_pipe_rules(pipe_id, pipe_rules):
             same_name_existing_rule = None
             missing_rule_tags = validate_rule_tags(rule)
             if missing_rule_tags:
-                logging.error(f"Required tags {missing_rule_tags} of pipe '{pipe_id}' are missing"
+                logger.error(f"Required tags {missing_rule_tags} of pipe '{pipe_id}' are missing"
                               f" for this rule {rule}.So,this notification-rule will not create.")
                 continue
             try:
@@ -89,7 +95,7 @@ def process_pipe_rules(pipe_id, pipe_rules):
                         recipients.append(recipient)
                 rule['recipients'] = recipients  # update the recipients as per API format
             except KeyError:
-                logging.error(
+                logger.error(
                     f"Provided recipient name: '{item}' is not correct for pipe: '{pipe_id}'.This rule will skip.")
                 continue
             for existing_rule in existing_rules:
@@ -107,9 +113,8 @@ def process_pipe_rules(pipe_id, pipe_rules):
                     portal_conn.add_pipe_notification_rule(subscription_id, pipe_id, rule)
                 update_count += 1
 
-
     if update_count == 0:
-        logging.debug("No new/changed rules found for pipe '{}'".format(pipe_id))
+        logger.debug("No new/changed rules found for pipe '{}'".format(pipe_id))
     # Delete the manually created notifications rule if any
     for existing in existing_rules:
         if existing not in matched_existence_rules:

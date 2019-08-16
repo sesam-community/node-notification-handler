@@ -2,7 +2,7 @@
 import requests
 import logging
 
-logger = logging.getLogger('NotificationManager')
+logger = logging.getLogger('NotificationHandler')
 
 
 class PortalConnection(object):
@@ -43,7 +43,7 @@ class PortalConnection(object):
         url = self.get_subscription_pipes_url(subscription_id) + f"{pipe_id}/notification-rules"
         resp = self.session.post(url, json=rule)
         if resp.ok:
-            logging.info(f"Created the notification rule: '{rule.get('name')}' for pipe: '{pipe_id}'. ")
+            logger.info(f"Created the notification rule: '{rule.get('name')}' for pipe: '{pipe_id}'. ")
         else:
             logger.error(f"Failed to add notification rule for pipe: '{pipe_id}', Error: '{resp.text}' ")
 
@@ -56,7 +56,7 @@ class PortalConnection(object):
         url = self.get_subscription_pipes_url(subscription_id) + f"{pipe_id}/notification-rules/{notification_rule_id}"
         resp = self.session.put(url, json=rule_definition)
         if resp.ok:
-            logging.info(f"Updated existing notification rule : '{rule_definition.get('name')}' for pipe: '{pipe_id}'. ")
+            logger.info(f"Updated existing notification rule : '{rule_definition.get('name')}' for pipe: '{pipe_id}'. ")
         else:
             logger.error("Failed to update notification rule for pipe '{pipe_id}'. Error: '{error}"
                          .format(pipe_id=pipe_id, error=resp.text))
@@ -66,7 +66,7 @@ class PortalConnection(object):
         url = self.get_subscription_pipes_url(subscription_id) + f"{pipe_id}/notification-rules/{notification_rule_id}"
         resp = self.session.delete(url)
         if resp.ok:
-            logging.info(
+            logger.info(
                     f"Deleted existing notification rule : '{notification_name}' for pipe: '{pipe_id}'. ")
         else:
             logger.error("Failed to delete notification rule for pipe '{pipe_id}'. Error: '{error}"
