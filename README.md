@@ -72,5 +72,7 @@ Below, is one example of creating one such automatic rule for pipe "test-notific
            will be part of that pipe-config.  
         8. Important : If required tag for notification rule (like ""metadata" and Sub tags like "notifications" and
            and "rules") are missing in pipe-config then that pipe will not part of automatic-process and Hence
-           any existing rule created manually for that will not delete.   
+           any existing rule created manually for that will not delete.
+        9. You can refer official documentation for more info:[Notifications](https://docs.sesam.io/notifications.html)
+ 
         
