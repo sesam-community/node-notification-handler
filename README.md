@@ -63,7 +63,7 @@ Below, is one example of creating one such automatic rule for pipe "test-notific
             C. "pump_completed_value_too_low_over_time" (Corresponds to "Value too log over time" of GUI)
             D. "pump_completed_value_too_high" (Corresponds to "Corresponds to "Value too high" of GUI)
             E. "pump_completed_value_too_low" (Corresponds to "Value too log" of GUI)
-            F. "pattern_match" (Corresponds to "Pattern match" of GUI)                  
+            F. "pattern_match" (Corresponds to "Pattern match" of GUI )           
         4. As you can see "rules" is list,so you can can create multiple rules through configuration.
         5. "recipients" are comma separated values of "users" and "roles" defined or exist on that node.
         6. "type" and ""extra_rule_info" tags configuration should follow the same rule\format that we follow
@@ -73,6 +73,5 @@ Below, is one example of creating one such automatic rule for pipe "test-notific
         8. Important : If required tag for notification rule (like ""metadata" and Sub tags like "notifications" and
            and "rules") are missing in pipe-config then that pipe will not part of automatic-process and Hence
            any existing rule created manually for that will not delete.
-        9. You can refer official documentation for more info:[Notifications](https://docs.sesam.io/notifications.html)
- 
+You can also refer official documentation for more info about [Notifications.](https://docs.sesam.io/notifications.html)
         
