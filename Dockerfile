@@ -15,6 +15,6 @@ COPY ./service /service
 
 WORKDIR /service
 
-RUN echo '*/2  *  *  *  *    /service/notification-handler.py' > /etc/crontabs/root
+RUN echo '*/5  *  *  *  * python /service/notification-handler.py' > /etc/crontabs/root
 CMD crond -l 2 -f
 
