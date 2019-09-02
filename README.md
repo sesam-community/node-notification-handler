@@ -74,8 +74,8 @@ Below, is one example of creating one such automatic rule for pipe "test-notific
         8. Important : If required tag for notification rule (like ""metadata" and Sub tags like "notifications" and
            and "rules") are missing in pipe-config then that pipe will not part of automatic-process and Hence
            any existing rule created manually for that will not delete.
-        9. You can stop sending mails to recipients for all pipes , by using optional environment variables 
-        "recipients" = false.By default , it's set to true.
+        9. You can stop sending mails to recipients for all pipes , by using optional environment variable 
+           "recipients" = false.By default, it's set to true.
          
 You can also refer official documentation for more info about [Notifications.](https://docs.sesam.io/notifications.html)
         
