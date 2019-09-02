@@ -2,6 +2,7 @@
 import requests
 import logging
 
+
 logger = logging.getLogger('NotificationHandler')
 
 
@@ -11,13 +12,10 @@ class PortalConnection(object):
 
     def __init__(self, jwt):
         self.jwt = jwt
-
         headers = {
             "Authorization": f"Bearer {jwt}"
         }
-
         self.session = session = requests.Session()
-
         session.headers = headers
 
     def get_subscription_roles(self, subscription_id):

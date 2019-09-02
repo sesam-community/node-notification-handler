@@ -4,16 +4,19 @@ import datetime
 import logging
 import os
 
+
 import requests
 import sesamclient
 from portal import PortalConnection
 from validate_email import validate_email
+
 
 __author__ = "Ravish Ranjan"
 
 # Get all the environment variables values from sesam node instance e.g http://sesam-node:9042/api
 sesam_node_url = os.environ.get('sesam_node_url')  # Sesam node url
 jwt = os.environ.get('jwt')
+use_recipients = os.environ.get('recipients', 'true')
 
 # set logging
 logger = logging.getLogger('NotificationHandler')
@@ -27,6 +30,7 @@ logger.addHandler(stdout_handler)
 
 
 logger.info("sesam instance name: %s" % sesam_node_url)
+logger.debug(f"value of  use_recipients {use_recipients}")
 
 node_conn = sesamclient.Connection(
     sesamapi_base_url=sesam_node_url,
@@ -38,16 +42,24 @@ subscription_id = node_conn.get_license().get("_id")
 logger.debug(f"Node subscription_id: '{subscription_id}'")
 
 
+def str_to_bool(s):
+    if s == 'true':
+        return True
+    elif s == 'false':
+        return False
+
+
 def get_sesam_node_pipe_notification_list():
     try:
         pipes = node_conn.get_pipes()
-        pipe_rules = list()
+        node_members_and_roles = get_node_members_and_roles()
+        node_conn.close()
         for each_pipe in pipes:
             if each_pipe.config['original'].get('metadata') is not None and \
                     each_pipe.config['original']['metadata'].get('notifications') is not None:
                 pipe_id = each_pipe.id
                 pipe_rules = each_pipe.config['original']['metadata']['notifications']
-                process_pipe_rules(pipe_id, pipe_rules)
+                process_pipe_rules(pipe_id, pipe_rules, node_members_and_roles)
     except requests.ConnectionError:
         logger.error(f'Issue while working with subscription {subscription_id}')
 
@@ -67,22 +79,21 @@ def validate_rule_tags(rule):
     return missing_required_tag
 
 
-def process_pipe_rules(pipe_id, pipe_rules):
+def process_pipe_rules(pipe_id, pipe_rules, node_members_and_roles):
     if pipe_rules and pipe_rules.get('rules') is not None:
         existing_rules = portal_conn.get_pipe_notification_rules(subscription_id, pipe_id)
         update_count = 0
         matched_existence_rules = list()
-        node_members_and_roles = get_node_members_and_roles()
         for rule in pipe_rules['rules']:
             same_name_existing_rule = None
             missing_rule_tags = validate_rule_tags(rule)
             if missing_rule_tags:
-                logger.error(f"Required tags {missing_rule_tags} of pipe '{pipe_id}' are missing"
-                              f" for this rule {rule}.So,this notification-rule will not create.")
+                logger.error(f"Required tags {missing_rule_tags} of pipe '{pipe_id}' are missing "
+                             f"for this rule {rule}.So,this notification-rule will not create.")
                 continue
             try:
                 recipients = list()
-                if rule.get('recipients') is not None:
+                if str_to_bool(use_recipients):
                     for item in rule['recipients']:
                         recipient = dict()
                         recipient = {"id": node_members_and_roles[item],
@@ -93,10 +104,13 @@ def process_pipe_rules(pipe_id, pipe_rules):
                         else:
                             recipient["type"] = 'role'
                         recipients.append(recipient)
-                rule['recipients'] = recipients  # update the recipients as per API format
+                    rule['recipients'] = recipients  # update the recipients as per API format
+                else:
+                    rule['recipients'] = recipients
             except KeyError:
                 logger.error(
-                    f"Provided recipient name: '{item}' is not correct for pipe: '{pipe_id}'.This rule will skip.")
+                    f"Provided recipient name: '{item}' is not correct for pipe: '{pipe_id}'.This rule { rule } "
+                    f"will skip.")
                 continue
             for existing_rule in existing_rules:
                 if existing_rule.get("name") == rule.get("name"):
@@ -135,3 +149,6 @@ def get_node_members_and_roles():
 
 if __name__ == '__main__':
     get_sesam_node_pipe_notification_list()
+
+
+
