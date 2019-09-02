@@ -13,7 +13,7 @@
       "recipients": true,
       "sesam_node_url": "https://<your node URL>.sesam.cloud/api"
     },
-    "image": "<docker image path-name>",
+    "image": "<your docker image path-name or you can use existing one: "sesamcommunity/node-notification-handler:latest" >",
     "port": 5000
   },
   "verify_ssl": true
