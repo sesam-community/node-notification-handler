@@ -1,7 +1,6 @@
 #!/usr/bin/env python3
 
-import datetime
-import logging
+import sys
 import os
 
 
@@ -9,34 +8,30 @@ import requests
 import sesamclient
 from portal import PortalConnection
 from validate_email import validate_email
+from sesamutils import sesam_logger, VariablesConfig
+
 
 
 __author__ = "Ravish Ranjan"
 
 # Get all the environment variables values from sesam node instance e.g http://sesam-node:9042/api
-sesam_node_url = os.environ.get('sesam_node_url')  # Sesam node url
-jwt = os.environ.get('jwt')
-use_recipients = os.environ.get('recipients', 'true')
+required_env_vars = ["sesam_node_url", "jwt"]
+optional_env_vars = [("recipients", "true")]
+
+config = VariablesConfig(required_env_vars, optional_env_vars=optional_env_vars)
+if not config.validate():
+    sys.exit(1)
 
 # set logging
-logger = logging.getLogger('NotificationHandler')
-logger.setLevel({"INFO": logging.INFO,
-                 "DEBUG": logging.DEBUG,
-                 "WARNING": logging.WARNING,
-                 "ERROR": logging.ERROR}.get(os.getenv("LOG_LEVEL", "INFO")))  # Default log level: INFO
-stdout_handler = logging.StreamHandler()
-stdout_handler.setFormatter(logging.Formatter('%(name)s - %(levelname)s - %(message)s'))
-logger.addHandler(stdout_handler)
+logger = sesam_logger('NotificationHandler')
 
-
-logger.info("sesam instance name: %s" % sesam_node_url)
-logger.debug(f"value of  use_recipients {use_recipients}")
+logger.info(f"SESAM instance name: {config.sesam_node_url}")
 
 node_conn = sesamclient.Connection(
-    sesamapi_base_url=sesam_node_url,
-    jwt_auth_token=jwt,
+    sesamapi_base_url=config.sesam_node_url,
+    jwt_auth_token=config.jwt,
     timeout=60)
-portal_conn = PortalConnection(jwt)
+portal_conn = PortalConnection(config.jwt)
 
 subscription_id = node_conn.get_license().get("_id")
 logger.debug(f"Node subscription_id: '{subscription_id}'")
@@ -93,7 +88,7 @@ def process_pipe_rules(pipe_id, pipe_rules, node_members_and_roles):
                 continue
             try:
                 recipients = list()
-                if str_to_bool(use_recipients):
+                if str_to_bool(config.recipients):
                     for item in rule['recipients']:
                         recipient = dict()
                         recipient = {"id": node_members_and_roles[item],

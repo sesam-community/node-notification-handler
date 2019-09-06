@@ -1,3 +1,4 @@
 sesamclient
 requests
 validate_email
+sesamutils

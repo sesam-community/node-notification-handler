@@ -9,6 +9,7 @@ logger = logging.getLogger('NotificationHandler')
 class PortalConnection(object):
 
     BASE_URL = "https://portal.sesam.io/api/"
+    logger = logging.getLogger('NotificationHandler')
 
     def __init__(self, jwt):
         self.jwt = jwt
