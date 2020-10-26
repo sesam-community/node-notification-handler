@@ -3,14 +3,11 @@
 import sys
 import os
 
-
 import requests
 import sesamclient
 from portal import PortalConnection
 from validate_email import validate_email
 from sesamutils import sesam_logger, VariablesConfig
-
-
 
 __author__ = "Ravish Ranjan"
 
@@ -23,7 +20,7 @@ if not config.validate():
     sys.exit(1)
 
 # set logging
-logger = sesam_logger('NotificationHandler')
+logger = sesam_logger('NotificationHandler', timestamp=True)
 
 logger.info(f"SESAM instance name: {config.sesam_node_url}")
 
@@ -104,7 +101,7 @@ def process_pipe_rules(pipe_id, pipe_rules, node_members_and_roles):
                     rule['recipients'] = recipients
             except KeyError:
                 logger.error(
-                    f"Provided recipient name: '{item}' is not correct for pipe: '{pipe_id}'.This rule { rule } "
+                    f"Provided recipient name: '{item}' is not correct for pipe: '{pipe_id}'.This rule {rule} "
                     f"will skip.")
                 continue
             for existing_rule in existing_rules:
@@ -113,7 +110,7 @@ def process_pipe_rules(pipe_id, pipe_rules, node_members_and_roles):
                     rule["id"] = existing_rule.get("id")
                     matched_existence_rules.append(same_name_existing_rule)
 
-            if not rule == same_name_existing_rule:
+            if not compare_rules(rule, same_name_existing_rule):
                 if same_name_existing_rule:
                     # updating existing rule
                     portal_conn.update_pipe_notification_rule(subscription_id, pipe_id, rule.get("id"), rule)
@@ -131,6 +128,35 @@ def process_pipe_rules(pipe_id, pipe_rules, node_members_and_roles):
                                                       existing.get("id"), existing.get("name"))
 
 
+def compare_rules(rule_1: dict, rule_2: dict):
+    """
+    I compare the valuabe values of two rules.
+    :param rule_1: dict of a rule
+    :param rule_2: dict of a rule
+    :return: boolean True/False
+    """
+    if rule_1 is None:
+        if rule_2 is None:
+            return True
+        else:
+            return False
+    if rule_2 is None:
+        if rule_1 is None:
+            return True
+        else:
+            return False
+    necessary_keys = ['description', 'extra_rule_info', 'name', 'recipients', 'type', 'id']
+    try:
+        for key in necessary_keys:
+            if rule_1[key] != rule_2[key]:
+                return False
+    except KeyError as e:
+        logger.warning(f'Could not compare old VS new rules. Handling as if rules are unequal. Error message:\n"{e}"\n')
+        return False
+
+    return True
+
+
 def get_node_members_and_roles():
     node_members = portal_conn.get_subscription_members(subscription_id)
     node_members_and_roles = dict()
@@ -144,6 +170,3 @@ def get_node_members_and_roles():
 
 if __name__ == '__main__':
     get_sesam_node_pipe_notification_list()
-
-
-
