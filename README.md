@@ -1,5 +1,9 @@
 ### Node-notification-handler
 
+This microservice can be used to publish notifications rules automatically as an alternative to doing it in UI. 
+
+Update pipe metadata following the rules explained below and the service will publish it.
+
 ` Example of a system-config for this micro-service.`
 
 ```json
@@ -76,6 +80,7 @@ Below, is one example of creating one such automatic rule for pipe "test-notific
            any existing rule created manually for that will not delete.
         9. You can stop sending mails to recipients for all pipes , by using optional environment variable 
            "recipients" = false.By default, it's set to true.
+       10. Be aware that notifications are priced per pipe on monthly basis by default.
          
 You can also refer official documentation for more info about [Notifications.](https://docs.sesam.io/notifications.html)
         
